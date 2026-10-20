@@ -14,6 +14,16 @@ if (!SKILL_DIR || !WORKSPACE || !BUILD_DIR || !FINAL_PPTX || !NODE_MODULES) {
   throw new Error("Missing absolute presentation environment paths");
 }
 
+const EVIDENCE_TEXT = await fs.readFile(
+  path.join(WORKSPACE, "evidence", "padding-oracle-demo.txt"),
+  "utf8",
+);
+const QUERY_MATCH = EVIDENCE_TEXT.match(/oracle queries\s*=\s*(\d+)/);
+if (!QUERY_MATCH) {
+  throw new Error("No oracle query count found; run scripts/run_demo.py first");
+}
+const QUERY_COUNT_TEXT = Number(QUERY_MATCH[1]).toLocaleString("en-US");
+
 const { finalizePresentation } = await import(
   pathToFileURL(path.join(SKILL_DIR, "container_tools/artifact_tool_utils.mjs")).href,
 );
@@ -334,11 +344,11 @@ function addTable(slide, values, x, y, w, h, widths, { headerFill = NAVY, font =
   addRule(slide, 64, 482, 1152, LINE, 1);
   addText(slide, "P[i] = I[i] xor C[i-1]", { x: 64, y: 512, w: 820, h: 52, size: 36, bold: true, color: TEAL });
   addText(slide, "≤ 256 guesses / byte", { x: 896, y: 518, w: 300, h: 36, size: 24, bold: true, color: ORANGE, align: "right" });
-  addText(slide, "4,713 requests recovered two blocks in the lab.", {
+  addText(slide, `${QUERY_COUNT_TEXT} requests recovered two blocks in the lab.`, {
     x: 64, y: 590, w: 1000, h: 30, size: 18, color: MUTED,
   });
   slideNumber(slide, 5);
-  notes(slide, "For each position, try candidate bytes until the block ends in the desired padding. The successful guess reveals the intermediate byte, not the key. Set the next target to two bytes of 02, then three bytes of 03, and repeat. The demonstration used 4,713 requests for two blocks, consistent with the expected random search cost.");
+  notes(slide, `For each position, try candidate bytes until the block ends in the desired padding. The successful guess reveals the intermediate byte, not the key. Set the next target to two bytes of 02, then three bytes of 03, and repeat. The demonstration used ${QUERY_COUNT_TEXT} requests for two blocks, consistent with the expected random search cost.`);
 }
 
 
@@ -390,7 +400,7 @@ function addTable(slide, values, x, y, w, h, widths, { headerFill = NAVY, font =
   const slide = presentation.slides.add();
   slide.background.fill = INK;
   title(slide, "Observed result", true);
-  addText(slide, "Synthetic localhost session  /  no real user data", {
+  addText(slide, "Synthetic localhost session  /  refreshed evidence run  /  no real user data", {
     x: 64, y: 116, w: 900, h: 28, size: 17, color: "#AFC4D5",
   });
   const rows = [
@@ -410,7 +420,7 @@ function addTable(slide, values, x, y, w, h, widths, { headerFill = NAVY, font =
   for (let index = 0; index < 3; index += 1) {
     const item = [
       ["2", "CBC blocks recovered"],
-      ["4,713", "oracle queries"],
+      [QUERY_COUNT_TEXT, "oracle queries"],
       ["0", "key bytes"],
     ][index];
     addText(slide, item[0], {

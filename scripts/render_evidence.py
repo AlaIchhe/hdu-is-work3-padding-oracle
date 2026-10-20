@@ -44,7 +44,7 @@ def main() -> None:
         draw.ellipse((left, 17, left + 14, 31), fill=color)
     draw.text(
         (118, 16),
-        "Padding-oracle lab - localhost evidence",
+        "Padding-oracle lab - HDU 23320116 - refreshed run",
         font=title_font,
         fill="#f8fafc",
     )

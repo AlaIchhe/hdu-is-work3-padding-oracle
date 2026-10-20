@@ -37,7 +37,7 @@ For the first block, the predecessor is the IV. Once `I[0] = D_K(C[0])` is known
 IV* = I[0] xor P*[0]
 ```
 
-No key byte is recovered. The measured run used 4,713 requests to recover two blocks, then changed `role=user;uid=10` to `role=root;uid=10`. The service accepted the forged cookie and returned the administrative view. Query counts vary between runs because the IV and the search order are randomized.
+No key byte is recovered. The committed evidence run used 3,707 requests to recover two blocks, then changed `role=user;uid=10` to `role=root;uid=10`. The service accepted the forged cookie and returned the administrative view. Query counts vary between runs because the IV and the search order are randomized; the evidence image records the capture time and the random IV used for this run.
 
 ## Attack digraph
 

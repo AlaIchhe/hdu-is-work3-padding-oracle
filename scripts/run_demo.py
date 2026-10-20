@@ -5,6 +5,7 @@ from __future__ import annotations
 import base64
 import sys
 import threading
+from datetime import datetime
 from pathlib import Path
 
 import requests
@@ -48,6 +49,7 @@ def main() -> None:
         cookie = session_response.json()["cookie"]
         token = base64.b64decode(cookie)
         log(f"GET /session -> HTTP {session_response.status_code}")
+        log(f"run captured at = {datetime.now().astimezone().isoformat(timespec='seconds')}")
         log(f"cookie bytes = {len(token)} ({len(token) // BLOCK_SIZE} AES blocks)")
         log(f"iv           = {token[:BLOCK_SIZE].hex()}")
 

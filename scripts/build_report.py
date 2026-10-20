@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 from reportlab.lib import colors
@@ -32,6 +33,18 @@ from reportlab.platypus.tableofcontents import TableOfContents
 ROOT = Path(__file__).resolve().parent.parent
 OUTPUT = ROOT / "report" / "Work3_Padding_Oracle_Report.pdf"
 ASSETS = ROOT / "assets"
+EVIDENCE = ROOT / "evidence" / "padding-oracle-demo.txt"
+
+
+def evidence_query_count() -> int:
+    match = re.search(r"oracle queries\s*=\s*(\d+)", EVIDENCE.read_text(encoding="utf-8"))
+    if not match:
+        raise RuntimeError("No oracle query count found; run scripts/run_demo.py first")
+    return int(match.group(1))
+
+
+QUERY_COUNT = evidence_query_count()
+QUERY_COUNT_TEXT = f"{QUERY_COUNT:,}"
 
 NAVY = colors.HexColor("#10243e")
 BLUE = colors.HexColor("#1f5a94")
@@ -449,7 +462,7 @@ def build_story(doc: ReportDoc):
         ["Main precondition", "Attacker can submit modified ciphertext and observe a validity difference"],
         ["Primary losses", "Plaintext disclosure, controlled modification, authentication or authority bypass"],
         ["Prevention", "AEAD such as AES-GCM, or Encrypt-then-MAC with constant-time verification"],
-        ["Proof produced", "2 CBC blocks recovered in 4,713 oracle requests; forged role accepted as root"],
+        ["Proof produced", f"2 CBC blocks recovered in {QUERY_COUNT_TEXT} oracle requests; forged role accepted as root"],
     ]
     story.append(table(["Aspect", "Result"], summary_data, [38 * mm, 140 * mm]))
 
@@ -557,7 +570,7 @@ def build_story(doc: ReportDoc):
         Paragraph(
             "The online cost is bounded by 256 guesses for each byte. For a 16-byte block, the worst case is "
             "4,096 requests per block; with uniformly distributed bytes, the expected number is roughly half "
-            "that per byte. The observed two-block run used 4,713 requests, which is consistent with the "
+            f"that per byte. The observed two-block run used {QUERY_COUNT_TEXT} requests, which is consistent with the "
             "expected order of magnitude and includes the extra request for the oracle check.",
             BODY,
         )
@@ -616,7 +629,7 @@ def build_story(doc: ReportDoc):
             "<font name='CascadiaMono' size='8'>role=root</font> and "
             "<font name='CascadiaMono' size='8'>access=admin console</font> for the forged cookie. "
             "The forged value was not a replay: it contained a new IV and a different plaintext block. "
-            "The exploit's 4,713 requests demonstrate the online nature of the attack and its dependence "
+            f"The exploit's {QUERY_COUNT_TEXT} requests demonstrate the online nature of the attack and its dependence "
             "on an observable oracle.",
             accent=RED,
             fill=PALE_RED,
@@ -635,11 +648,12 @@ def build_story(doc: ReportDoc):
     story.append(table(["Evidence line", "Graph state", "Interpretation"], evidence_rows, [57 * mm, 26 * mm, 95 * mm]))
     story.append(
         Paragraph(
-            "The run used 4,713 HTTP calls against a loopback service. That number is not a performance "
+            f"The run used {QUERY_COUNT_TEXT} HTTP calls against a loopback service. That number is not a performance "
             "benchmark; it shows that the attack is an online, adaptive process. A real target may require "
             "parallelism, connection reuse, or timing analysis, and defensive rate limits can change the "
             "practical cost. The demonstration therefore supports the logical graph rather than claiming "
-            "universal timing or exploitability.",
+            "universal timing or exploitability. Because the IV and candidate positions are not fixed, a rerun "
+            "can use a different number of requests while preserving the same graph transitions and losses.",
             BODY,
         )
     )
