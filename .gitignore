@@ -1,0 +1,16 @@
+# Local environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local build and review artifacts
+.build/
+.build-*/
+tmp/
+slides/node_modules/
+
+# Editor and operating-system files
+.DS_Store
+Thumbs.db
