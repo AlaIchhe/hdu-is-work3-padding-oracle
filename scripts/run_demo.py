@@ -99,7 +99,7 @@ def main() -> None:
         server.shutdown()
         thread.join(timeout=3)
         EVIDENCE.parent.mkdir(parents=True, exist_ok=True)
-        EVIDENCE.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        EVIDENCE.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
         print(f"\nEvidence written to {EVIDENCE}")
 
 
